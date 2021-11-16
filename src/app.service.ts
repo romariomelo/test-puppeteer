@@ -1,4 +1,5 @@
-import { Injectable } from '@nestjs/common';
+import { Get, Injectable } from '@nestjs/common';
+import { Cron, SchedulerRegistry } from '@nestjs/schedule';
 import * as puppeteer from 'puppeteer';
 
 interface IJsonArray {
@@ -15,6 +16,7 @@ interface IJsonArray {
 
 @Injectable()
 export class AppService {
+  constructor(private schedulerRegistry: SchedulerRegistry) {}
   async getHello() {
     // let links: string[] = [];
     const browser = await puppeteer.launch({ headless: false });
@@ -84,5 +86,22 @@ export class AppService {
       await page.close();
       await browser.close();
     }
+  }
+
+  // @Cron('* * * * * *', {
+  //   name: 'testCron',
+  // })
+  // handleCron() {
+  //   console.log('Called when the current second is 1');
+  // }
+
+  @Get()
+  schedule() {
+    // d2178859-05aa-4d95-8726-909cbd63278f
+    this.schedulerRegistry.getCronJobs().forEach((value, key) => {
+      console.log(key);
+      console.log(this.schedulerRegistry.doesExists('cron', key));
+      this.schedulerRegistry.deleteCronJob(key);
+    });
   }
 }
